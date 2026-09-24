@@ -9,6 +9,8 @@ import pandas as pd
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 # Configure logging securely (avoid logging PII/sensitive request data)
@@ -24,19 +26,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Policy - strictly configured for local development, since frontend and API are served from same origin
+# CORS Policy - strictly configured for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict this to domain-specific origins in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
-# Resolve model and scaler paths
+# Resolve model, scaler, and template paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 SCALER_PATH = os.path.join(BASE_DIR, "scaler.pkl")
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # Load model and scaler
 try:
@@ -210,7 +215,6 @@ async def predict_cardio(data: PredictionRequest):
         )
 
     except Exception as e:
-        # Prevent exposing stack trace to client for security, log internally
         logger.error(f"Internal prediction error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
@@ -223,14 +227,40 @@ async def health_check():
     return {"status": "healthy", "timestamp": time.time()}
 
 
-# Serve static frontend files (must be mounted after API routes to avoid overlapping)
+# ----------------------------------------------------
+# FRONTEND HTML PAGE ROUTES (4-page application)
+# ----------------------------------------------------
+@app.get("/", response_class=HTMLResponse, summary="Home Page")
+async def page_home(request: Request):
+    return templates.TemplateResponse(request, "index.html", {"active_page": "home"})
+
+
+@app.get("/predictor", response_class=HTMLResponse, summary="Risk Predictor Page")
+async def page_predictor(request: Request):
+    return templates.TemplateResponse(request, "predictor.html", {"active_page": "predictor"})
+
+
+@app.get("/insights", response_class=HTMLResponse, summary="Data Insights Page")
+async def page_insights(request: Request):
+    return templates.TemplateResponse(request, "insights.html", {"active_page": "insights"})
+
+
+@app.get("/about", response_class=HTMLResponse, summary="About & Documentation Page")
+async def page_about(request: Request):
+    return templates.TemplateResponse(request, "about.html", {"active_page": "about"})
+
+
+# ----------------------------------------------------
+# STATIC ASSETS MOUNTING
+# ----------------------------------------------------
 static_dir = os.path.join(BASE_DIR, "static")
 if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 
-app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/", StaticFiles(directory=static_dir, html=False), name="static_root")
 
 if __name__ == "__main__":
     import uvicorn
-    # In production, run on standard ports with SSL termination
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+

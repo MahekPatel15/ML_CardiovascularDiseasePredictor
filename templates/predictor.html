@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Predictor - CardioGuard AI Diagnostic Tool{% endblock %}
+
+{% block content %}
+<div class="bg-[#F4F8FA] min-h-screen">
+
+    <!-- PAGE HERO BANNER -->
+    <div class="bg-white border-b border-[#DEEBF7]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="space-y-1.5">
+                    <span class="inline-block px-3.5 py-1 rounded-full bg-[#DEEBF7] text-[#3182BD] text-xs font-bold uppercase tracking-widest">Risk Predictor</span>
+                    <h1 class="font-outfit font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#0F172A] tracking-tight">
+                        Cardiovascular Disease Risk Predictor
+                    </h1>
+                    <p class="text-slate-500 text-xs sm:text-sm max-w-2xl leading-relaxed">
+                        Input your clinical health parameters. Our Decision Tree model computes your cardiovascular risk probability in real time.
+                    </p>
+                </div>
+                <span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#DEEBF7] border border-[#9ECAE1] text-[#3182BD] text-xs font-bold w-fit flex-shrink-0">
+                    <i class="fa-solid fa-microchip"></i> Decision Tree · 87.2% Accuracy
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+            <!-- ======================== LEFT: FORM ======================== -->
+            <div class="lg:col-span-7 space-y-5">
+
+                <!-- SECTION 1: PATIENT DEMOGRAPHICS -->
+                <div class="bg-white border border-[#DEEBF7] rounded-3xl p-5 sm:p-7 shadow-sm space-y-5">
+                    <div class="flex items-center gap-3 pb-3 border-b border-[#DEEBF7]">
+                        <div class="w-9 h-9 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] text-sm flex-shrink-0">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit font-bold text-base text-[#0F172A]">Patient Demographics</h2>
+                            <p class="text-slate-400 text-xs">Age and biological gender</p>
+                        </div>
+                    </div>
+
+                    <form id="analyzer-form" novalidate>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Age -->
+                            <div class="space-y-1.5">
+                                <label for="age_years" class="block text-xs font-semibold text-[#0F172A]">Age (Years)</label>
+                                <div class="relative">
+                                    <input type="number" id="age_years" name="age_years" min="18" max="100"
+                                        class="w-full bg-[#F4F8FA] border border-[#DEEBF7] focus:border-[#3182BD] focus:ring-2 focus:ring-[#3182BD]/20 rounded-xl px-4 py-3 text-[#0F172A] placeholder-slate-400 text-sm transition-all"
+                                        placeholder="e.g. 45" required>
+                                    <span class="absolute right-3.5 top-3.5 text-xs text-slate-400 font-medium">yrs</span>
+                                </div>
+                                <span class="text-xs text-rose-600 block min-h-[1rem]" id="error-age"></span>
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="space-y-1.5">
+                                <span class="block text-xs font-semibold text-[#0F172A]">Biological Gender</span>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <input type="radio" id="gender-female" name="gender" value="1" checked class="sr-only peer">
+                                        <label for="gender-female" class="flex items-center justify-center gap-2 border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#3182BD] peer-checked:bg-[#DEEBF7] peer-checked:text-[#3182BD] text-slate-500 rounded-xl p-3 text-xs font-semibold cursor-pointer transition-all">
+                                            <i class="fa-solid fa-venus"></i> Female
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" id="gender-male" name="gender" value="2" class="sr-only peer">
+                                        <label for="gender-male" class="flex items-center justify-center gap-2 border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#3182BD] peer-checked:bg-[#DEEBF7] peer-checked:text-[#3182BD] text-slate-500 rounded-xl p-3 text-xs font-semibold cursor-pointer transition-all">
+                                            <i class="fa-solid fa-mars"></i> Male
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- SECTION 2: BODY MEASUREMENTS -->
+                <div class="bg-white border border-[#DEEBF7] rounded-3xl p-5 sm:p-7 shadow-sm space-y-5">
+                    <div class="flex items-center gap-3 pb-3 border-b border-[#DEEBF7]">
+                        <div class="w-9 h-9 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] text-sm flex-shrink-0">
+                            <i class="fa-solid fa-ruler-vertical"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit font-bold text-base text-[#0F172A]">Body Measurements</h2>
+                            <p class="text-slate-400 text-xs">Height and weight for BMI computation</p>
+                        </div>
+                    </div>
+
+                    <!-- Height Slider -->
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <label for="height" class="text-xs font-semibold text-[#0F172A]">Height</label>
+                            <span class="font-mono text-[#3182BD] bg-[#DEEBF7] border border-[#9ECAE1] px-3 py-1 rounded-lg text-xs font-bold" id="height-val">165 cm</span>
+                        </div>
+                        <input type="range" id="height" name="height" min="100" max="220" value="165"
+                            class="w-full h-2 bg-[#DEEBF7] rounded-lg appearance-none cursor-pointer accent-[#3182BD]">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                            <span>100 cm</span><span>160 cm</span><span>220 cm</span>
+                        </div>
+                    </div>
+
+                    <!-- Weight Slider -->
+                    <div class="space-y-2.5 pt-1">
+                        <div class="flex items-center justify-between">
+                            <label for="weight" class="text-xs font-semibold text-[#0F172A]">Weight</label>
+                            <span class="font-mono text-[#3182BD] bg-[#DEEBF7] border border-[#9ECAE1] px-3 py-1 rounded-lg text-xs font-bold" id="weight-val">70 kg</span>
+                        </div>
+                        <input type="range" id="weight" name="weight" min="30" max="200" step="0.5" value="70"
+                            class="w-full h-2 bg-[#DEEBF7] rounded-lg appearance-none cursor-pointer accent-[#3182BD]">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-medium">
+                            <span>30 kg</span><span>115 kg</span><span>200 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: BLOOD PRESSURE -->
+                <div class="bg-white border border-[#DEEBF7] rounded-3xl p-5 sm:p-7 shadow-sm space-y-5">
+                    <div class="flex items-center gap-3 pb-3 border-b border-[#DEEBF7]">
+                        <div class="w-9 h-9 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] text-sm flex-shrink-0">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit font-bold text-base text-[#0F172A]">Blood Pressure</h2>
+                            <p class="text-slate-400 text-xs">Systolic and diastolic readings in mmHg</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <!-- Systolic BP -->
+                        <div class="space-y-1.5">
+                            <label for="ap_hi" class="block text-xs font-semibold text-[#0F172A]">Systolic BP <span class="text-slate-400 font-normal">(ap_hi)</span></label>
+                            <div class="relative">
+                                <input type="number" id="ap_hi" name="ap_hi" min="60" max="250"
+                                    class="w-full bg-[#F4F8FA] border border-[#DEEBF7] focus:border-[#3182BD] focus:ring-2 focus:ring-[#3182BD]/20 rounded-xl px-4 py-3 text-[#0F172A] placeholder-slate-400 text-sm transition-all"
+                                    placeholder="e.g. 120" required>
+                                <span class="absolute right-3.5 top-3.5 text-xs text-slate-400">mmHg</span>
+                            </div>
+                            <span class="text-xs text-rose-600 block min-h-[1rem]" id="error-ap-hi"></span>
+                        </div>
+
+                        <!-- Diastolic BP -->
+                        <div class="space-y-1.5">
+                            <label for="ap_lo" class="block text-xs font-semibold text-[#0F172A]">Diastolic BP <span class="text-slate-400 font-normal">(ap_lo)</span></label>
+                            <div class="relative">
+                                <input type="number" id="ap_lo" name="ap_lo" min="40" max="200"
+                                    class="w-full bg-[#F4F8FA] border border-[#DEEBF7] focus:border-[#3182BD] focus:ring-2 focus:ring-[#3182BD]/20 rounded-xl px-4 py-3 text-[#0F172A] placeholder-slate-400 text-sm transition-all"
+                                    placeholder="e.g. 80" required>
+                                <span class="absolute right-3.5 top-3.5 text-xs text-slate-400">mmHg</span>
+                            </div>
+                            <span class="text-xs text-rose-600 block min-h-[1rem]" id="error-ap-lo"></span>
+                        </div>
+                    </div>
+
+                    <!-- BP Cross Validation Alert -->
+                    <div id="error-bp-relation" role="alert" aria-live="assertive" class="text-xs text-rose-600 font-medium px-4 py-2.5 rounded-xl bg-rose-50 border border-rose-200 empty:hidden"></div>
+                </div>
+
+                <!-- SECTION 4: LAB & LIFESTYLE -->
+                <div class="bg-white border border-[#DEEBF7] rounded-3xl p-5 sm:p-7 shadow-sm space-y-5">
+                    <div class="flex items-center gap-3 pb-3 border-b border-[#DEEBF7]">
+                        <div class="w-9 h-9 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] text-sm flex-shrink-0">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-outfit font-bold text-base text-[#0F172A]">Lab Indicators &amp; Lifestyle</h2>
+                            <p class="text-slate-400 text-xs">Cholesterol, glucose, and behavioral habits</p>
+                        </div>
+                    </div>
+
+                    <!-- Cholesterol -->
+                    <div class="space-y-2">
+                        <span class="block text-xs font-semibold text-[#0F172A]">Cholesterol Level</span>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <input type="radio" id="chol-1" name="cholesterol" value="1" checked class="sr-only peer">
+                                <label for="chol-1" class="flex flex-col items-center justify-center text-center border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#3182BD] peer-checked:bg-[#DEEBF7] peer-checked:text-[#3182BD] text-slate-500 rounded-xl py-3 px-2 text-xs font-semibold cursor-pointer transition-all">
+                                    <i class="fa-solid fa-circle-check mb-1.5 text-base peer-checked:text-[#3182BD]"></i> Normal
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" id="chol-2" name="cholesterol" value="2" class="sr-only peer">
+                                <label for="chol-2" class="flex flex-col items-center justify-center text-center border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#9ECAE1] peer-checked:bg-[#DEEBF7]/70 peer-checked:text-[#2166AC] text-slate-500 rounded-xl py-3 px-2 text-xs font-semibold cursor-pointer transition-all">
+                                    <i class="fa-solid fa-triangle-exclamation mb-1.5 text-base"></i> Above Normal
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" id="chol-3" name="cholesterol" value="3" class="sr-only peer">
+                                <label for="chol-3" class="flex flex-col items-center justify-center text-center border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#3182BD] peer-checked:bg-[#9ECAE1]/40 peer-checked:text-[#0F172A] text-slate-500 rounded-xl py-3 px-2 text-xs font-semibold cursor-pointer transition-all">
+                                    <i class="fa-solid fa-circle-exclamation mb-1.5 text-base"></i> Well Above
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Glucose -->
+                    <div class="space-y-2">
+                        <span class="block text-xs font-semibold text-[#0F172A]">Blood Glucose Level</span>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <input type="radio" id="gluc-1" name="gluc" value="1" checked class="sr-only peer">
+                                <label for="gluc-1" class="flex flex-col items-center justify-center text-center border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#3182BD] peer-checked:bg-[#DEEBF7] peer-checked:text-[#3182BD] text-slate-500 rounded-xl py-3 px-2 text-xs font-semibold cursor-pointer transition-all">
+                                    <i class="fa-solid fa-circle-check mb-1.5 text-base"></i> Normal
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" id="gluc-2" name="gluc" value="2" class="sr-only peer">
+                                <label for="gluc-2" class="flex flex-col items-center justify-center text-center border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#9ECAE1] peer-checked:bg-[#DEEBF7]/70 peer-checked:text-[#2166AC] text-slate-500 rounded-xl py-3 px-2 text-xs font-semibold cursor-pointer transition-all">
+                                    <i class="fa-solid fa-triangle-exclamation mb-1.5 text-base"></i> Above Normal
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" id="gluc-3" name="gluc" value="3" class="sr-only peer">
+                                <label for="gluc-3" class="flex flex-col items-center justify-center text-center border border-[#DEEBF7] bg-[#F4F8FA] peer-checked:border-[#3182BD] peer-checked:bg-[#9ECAE1]/40 peer-checked:text-[#0F172A] text-slate-500 rounded-xl py-3 px-2 text-xs font-semibold cursor-pointer transition-all">
+                                    <i class="fa-solid fa-circle-exclamation mb-1.5 text-base"></i> Well Above
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifestyle Toggles -->
+                    <div class="space-y-2">
+                        <span class="block text-xs font-semibold text-[#0F172A]">Lifestyle Habits</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <label class="flex items-center justify-between p-3.5 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7] cursor-pointer hover:border-[#3182BD] transition-all group">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-smoking text-[#3182BD] text-sm"></i>
+                                    <span class="text-xs font-semibold text-[#0F172A]">Smoking</span>
+                                </div>
+                                <input type="checkbox" id="smoke" name="smoke" value="1" class="w-4 h-4 accent-[#3182BD] rounded cursor-pointer">
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7] cursor-pointer hover:border-[#3182BD] transition-all group">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-wine-glass text-[#3182BD] text-sm"></i>
+                                    <span class="text-xs font-semibold text-[#0F172A]">Alcohol Use</span>
+                                </div>
+                                <input type="checkbox" id="alco" name="alco" value="1" class="w-4 h-4 accent-[#3182BD] rounded cursor-pointer">
+                            </label>
+
+                            <label class="flex items-center justify-between p-3.5 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7] cursor-pointer hover:border-[#3182BD] transition-all group">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-person-running text-[#3182BD] text-sm"></i>
+                                    <span class="text-xs font-semibold text-[#0F172A]">Physically Active</span>
+                                </div>
+                                <input type="checkbox" id="active" name="active" value="1" checked class="w-4 h-4 accent-[#3182BD] rounded cursor-pointer">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button inside the form (form spans all 4 sections) -->
+                    <div class="pt-2">
+                        <button type="submit" id="submit-btn" form="analyzer-form"
+                            class="w-full py-4 px-6 rounded-2xl bg-[#3182BD] hover:bg-[#2166AC] text-white font-outfit font-bold text-sm shadow-md transition-all duration-200 flex items-center justify-center gap-2">
+                            <span class="btn-text flex items-center gap-2">
+                                <i class="fa-solid fa-bolt"></i> Run Diagnostic Assessment
+                            </span>
+                            <span class="btn-loader hidden flex items-center gap-2">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Analyzing Vitals...
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ======================== RIGHT: RESULTS ======================== -->
+            <div class="lg:col-span-5 lg:sticky lg:top-24 space-y-5">
+
+                <!-- Model Info Card -->
+                <div class="bg-white border border-[#DEEBF7] rounded-2xl p-4 shadow-sm">
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="p-3 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7]">
+                            <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">Model</div>
+                            <div class="text-xs font-bold text-[#0F172A] font-mono">Decision Tree</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7]">
+                            <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">Accuracy</div>
+                            <div class="text-xs font-bold text-[#3182BD] font-mono">87.2%</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7]">
+                            <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">Inputs</div>
+                            <div class="text-xs font-bold text-[#0F172A] font-mono">11 Factors</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DEFAULT: Awaiting State -->
+                <div id="placeholder-result" class="bg-white border border-[#DEEBF7] rounded-3xl p-8 sm:p-10 text-center space-y-6 shadow-sm">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-3xl">
+                        <i class="fa-solid fa-heart-pulse animate-pulse"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-outfit font-bold text-xl text-[#0F172A]">Awaiting Input</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed max-w-xs mx-auto">
+                            Fill out all clinical parameters on the left and hit "Run Diagnostic Assessment" to get your risk report.
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-center gap-2 text-xs text-slate-400">
+                        <i class="fa-solid fa-arrow-left text-[#3182BD]"></i>
+                        <span>Complete the form to proceed</span>
+                    </div>
+                </div>
+
+                <!-- RESULT CARD STATE (Hidden initially) -->
+                <div id="card-result" class="hidden bg-white border border-[#DEEBF7] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+
+                    <div class="flex items-center justify-between border-b border-[#DEEBF7] pb-4">
+                        <h2 class="font-outfit font-bold text-base text-[#0F172A] flex items-center gap-2">
+                            <i class="fa-solid fa-square-poll-vertical text-[#3182BD]"></i> Risk Assessment Report
+                        </h2>
+                        <button id="reset-btn" type="button"
+                            class="px-3 py-1.5 rounded-lg bg-[#F4F8FA] hover:bg-[#DEEBF7] text-[#0F172A] text-xs font-medium flex items-center gap-1.5 transition-colors border border-[#DEEBF7]">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                    </div>
+
+                    <!-- CIRCULAR GAUGE -->
+                    <div class="flex flex-col items-center justify-center relative py-2">
+                        <svg class="progress-ring transform -rotate-90" width="200" height="200">
+                            <circle class="progress-ring__circle-bg stroke-[#DEEBF7]" stroke-width="14" fill="transparent" r="80" cx="100" cy="100"/>
+                            <circle id="progress-indicator" class="progress-ring__circle transition-all duration-1000 ease-out stroke-[#3182BD]" stroke-width="14" stroke-linecap="round" fill="transparent" r="80" cx="100" cy="100"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                            <span id="risk-score" class="font-outfit font-extrabold text-4xl text-[#0F172A] tracking-tight">0%</span>
+                            <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase mt-1">Risk Probability</span>
+                        </div>
+                    </div>
+
+                    <!-- SEVERITY BADGE -->
+                    <div class="text-center">
+                        <span id="risk-status" class="severity-badge inline-block px-6 py-2 rounded-full font-outfit font-bold text-sm tracking-wide shadow-sm">
+                            Low Risk
+                        </span>
+                    </div>
+
+                    <!-- RECOMMENDATIONS -->
+                    <div class="space-y-3 pt-1">
+                        <h3 class="font-outfit font-semibold text-sm text-[#0F172A] flex items-center gap-2">
+                            <i class="fa-solid fa-user-nurse text-[#3182BD]"></i> Health Recommendations
+                        </h3>
+                        <ul id="advice-container" class="advice-list space-y-2.5 text-xs text-slate-600"></ul>
+                    </div>
+
+                    <div class="pt-2 border-t border-[#DEEBF7] text-[10px] text-slate-400 text-center">
+                        Calculated via Decision Tree Classifier · 65,435 clinical training vectors
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

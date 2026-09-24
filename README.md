@@ -1,99 +1,72 @@
-# CardioGuard AI - Frontend & System Documentation
+# CardioGuard AI - Production Clinical Cardiovascular Risk Platform
 
-This document explains the architecture, design choices, data flow, validation logic, and execution steps for the **CardioGuard AI** web application.
+CardioGuard AI is a 4-page clinical cardiovascular disease screening web application powered by machine learning decision tree models and FastAPI.
 
 ---
 
 ## 1. Directory Structure
 
-The project files are laid out as follows:
 ```text
 ML PROJECT/
-├── Cardio_Cleaning_DecisionTree.ipynb   # Jupyter Notebook with data prep & model training
-├── model.pkl                           # Trained Decision Tree Classifier (sklearn)
-├── scaler.pkl                          # Trained Standard Scaler (sklearn)
-├── app.py                              # FastAPI backend & web server
-├── EXPLAINING.md                       # This documentation file
-└── static/                             # Frontend assets served by app.py
-    ├── index.html                      # HTML5 layout (Semantic, accessible tabs)
-    ├── index.css                       # CSS3 styling (Glassmorphism, dark-mode, keyframes)
-    └── index.js                        # JavaScript (Client-side validation, AJAX, dynamic report)
+├── app.py                              # FastAPI REST API & Jinja2 template routes
+├── model.pkl                           # Trained Scikit-Learn DecisionTree model
+├── scaler.pkl                          # Fitted StandardScaler model
+├── cardio_train.csv                    # Kaggle Cardiovascular Disease Dataset
+├── Cardio_Cleaning_DecisionTree.ipynb   # Data cleaning, EDA & model notebook
+├── README.md                           # System documentation
+├── templates/                          # Jinja2 template pages
+│   ├── base.html                       # Base layout (Header nav, footer, theme switcher)
+│   ├── index.html                      # Home page (/)
+│   ├── predictor.html                  # Predictor page (/predictor)
+│   ├── insights.html                   # Data Insights page (/insights)
+│   └── about.html                      # About page (/about)
+└── static/                             # Static web assets
+    ├── index.css                       # Custom CSS styling (Light/Dark themes, gauge animation)
+    └── index.js                        # Client JS (Theme toggle, sliders, API call, gauge animation)
 ```
 
 ---
 
-## 2. System Architecture
+## 2. 4-Page System Architecture
 
-The application operates as a self-contained single-page application (SPA) with a lightweight, high-performance Python API backend:
-
-```mermaid
-graph TD
-    Client[Web Browser - HTML5/CSS3/JS] -->|POST /api/predict JSON| API[FastAPI Server]
-    API -->|1. Check Rate Limit| RateLimiter[In-Memory IP Limiter]
-    API -->|2. Validate Schema| Pydantic[Pydantic Schema Validation]
-    API -->|3. Load Pandas DataFrame| Pandas[DataFrame Constructor]
-    API -->|4. Apply Preprocessing| Scaler[StandardScaler scaler.pkl]
-    API -->|5. Run Classification| Model[DecisionTreeClassifier model.pkl]
-    Model -->|6. Return Probability & Risk Class| API
-    API -->|JSON Response| Client
-```
+1. **Home (`/`)**:
+   - Hero section with value proposition, real stats strip (65,435 records, 11 features, 87.2% model accuracy), "How it Works" 3-step breakdown, and primary CTAs.
+2. **Predictor (`/predictor`)**:
+   - Redesigned 2-column diagnostic assessment tool:
+     - Left: Grouped input form (Demographics, Body Measurements, Blood Pressure, Clinical Labs & Lifestyle).
+     - Right: Sticky results report with SVG circular probability gauge, Low/Moderate/High risk badge, dynamic recommendations list, and Reset button.
+3. **Data Insights (`/insights`)**:
+   - Dataset breakdown, feature reference dictionary, interactive Chart.js visualizations (Feature Importance weight, Blood pressure distribution), and model accuracy metrics (87.2% test accuracy, confusion matrix).
+4. **About (`/about`)**:
+   - Project mission, medical disclaimer, model methodology, and developer profile card (**Mahek Patel**).
 
 ---
 
-## 3. Backend Implementation (`app.py`)
+## 3. Technology Stack & Design System
 
-The backend is built using **FastAPI** to meet high-level engineering standards:
-- **Zero Trust Schema Validation**: Pydantic models enforce exact clinical boundaries matching the model's clean dataset distribution:
-  - Height: `100` to `220` cm.
-  - Weight: `30` to `200` kg.
-  - Systolic BP (`ap_hi`): `60` to `250` mmHg.
-  - Diastolic BP (`ap_lo`): `40` to `200` mmHg.
-  - Constraint: Systolic BP must be greater than or equal to Diastolic BP.
-- **In-Memory IP Rate Limiter**: Implements a sliding-window rate limiter preventing API abuse by restricting individual client IPs to a maximum of 30 requests per minute.
-- **Stateless Pipeline**: Features are packed into a pandas DataFrame in the exact sequence expected by `scaler.pkl`: `['gender', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'smoke', 'alco', 'active', 'age_years']` before model classification.
+- **Backend**: FastAPI, Pydantic, Python 3, Uvicorn, Scikit-Learn, Joblib, Pandas.
+- **Frontend**: Plain HTML5, CSS3, JavaScript (Vanilla ES6), Tailwind CSS CDN, FontAwesome, Chart.js.
+- **Theme Support**: Persistent Light & Dark mode theme switcher with `localStorage` memory and smooth transitions.
 
 ---
 
-## 4. Frontend Design Aesthetics (`static/index.css`)
-
-The user interface is designed to deliver a premium, clinical diagnostic feel using vanilla CSS:
-- **Visual Palette**: A deep tech theme with `#060713` background, contrasted against cyan and blue glowing accents representing oxygenated and deoxygenated blood pathways.
-- **Glassmorphism**: Dashboard panels feature semi-transparent backgrounds with backdrop filters (`blur(12px)`) and subtle borders (`rgba(255, 255, 255, 0.05)`) mimicking clinical frosted glass.
-- **Interactive Indicators**:
-  - **Beating Heart**: A CSS pulse animation (`@keyframes heartBeat`) runs in the placeholder card, giving a responsive biological feel.
-  - **Circular Gauge**: An SVG circle path (`stroke-dasharray` and `stroke-dashoffset`) dynamically animates the risk percentage using trigonometric circle circumference calculations (`2 * Math.PI * 90`).
-  - **Custom Controls**: HTML range sliders and checkboxes are styled from scratch to replace default browser widgets with modern glowing toggles.
-
----
-
-## 5. Client-Side JavaScript Logic (`static/index.js`)
-
-The JavaScript layer coordinates interaction, validates parameters, communicates with the API, and generates dynamic recommendations:
-- **Tab Swapping**: Toggles view panels between the **Health Analyzer** tool and **Model Insights** dashboard securely using ARIA role attributes.
-- **Real-Time Warning Signals**: Displays immediate error messages if age, systolic, or diastolic metrics are entered outside ranges. If Systolic BP is typed lower than Diastolic BP, the submit button is locked.
-- **Dynamic Medical Advisor**: After retrieving predictions, the client calculates BMI and reviews vitals to construct custom clinical advisories:
-  - **BMI Advisory**: Computes BMI using `weight / (height / 100)^2`. Warns if the index is $\ge 25.0$.
-  - **Hypertensive Advisory**: Warns if blood pressure is hypertensive ($\ge 140/90$ mmHg) or pre-hypertensive ($\ge 120/80$ mmHg).
-  - **Lifestyle Advisories**: Provides critical warnings regarding smoking tobacco, high alcohol intake, and physical inactivity.
-
----
-
-## 6. How to Deploy and Run
-
-Follow these steps to launch the application locally:
+## 4. How to Deploy and Run
 
 ### 1. Install Dependencies
-Run in your python environment:
 ```bash
-pip install fastapi uvicorn pandas joblib scikit-learn
+pip install fastapi uvicorn pandas joblib scikit-learn jinja2
 ```
 
-### 2. Launch Server
-Execute the backend app:
+### 2. Launch FastAPI Server
 ```bash
 python app.py
 ```
-This starts the development server at `http://127.0.0.1:8000`.
 
-### 3. Access Dashboard
-Open a browser and navigate to `http://127.0.0.1:8000` to interact with the CardioGuard AI application.
+### 3. Open in Browser
+Open `http://127.0.0.1:8000` to access the application.
+
+---
+
+## 5. Developer & Credits
+
+Designed & Developed by **Mahek Patel**.

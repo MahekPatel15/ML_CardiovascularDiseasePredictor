@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}About - CardioGuard AI Mission & Overview{% endblock %}
+
+{% block content %}
+<div class="bg-[#F4F8FA] min-h-screen">
+
+    <!-- PAGE HERO BANNER -->
+    <div class="bg-white border-b border-[#DEEBF7]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+            <div class="space-y-2 max-w-3xl">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-[#DEEBF7] text-[#3182BD] text-xs font-bold uppercase tracking-widest">About</span>
+                <h1 class="font-outfit font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#0F172A] tracking-tight">About CardioGuard AI</h1>
+                <p class="text-slate-500 text-sm sm:text-base leading-relaxed pt-1">
+                    A machine learning application for cardiovascular risk screening — built using clinical-grade parameters and a Decision Tree classification model.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+
+        <!-- PURPOSE + METHODOLOGY: Side-by-side with icon -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <div class="bg-white border border-[#DEEBF7] rounded-3xl p-7 sm:p-10 shadow-sm space-y-5">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-[#DEEBF7] border border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl flex-shrink-0">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-outfit font-bold text-xl text-[#0F172A]">Project Purpose</h2>
+                        <p class="text-slate-400 text-xs">Why CardioGuard AI was built</p>
+                    </div>
+                </div>
+                <div class="border-t border-[#DEEBF7] pt-5">
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Cardiovascular diseases are the leading cause of death worldwide. Early identification of risk factors—such as elevated blood pressure, high cholesterol, and low physical activity—allows individuals to make timely lifestyle adjustments.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed mt-4">
+                        CardioGuard AI provides an accessible, clear risk screening tool that evaluates an individual's cardiovascular risk probability using medically recognized clinical parameters.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white border border-[#DEEBF7] rounded-3xl p-7 sm:p-10 shadow-sm space-y-5">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-[#DEEBF7] border border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl flex-shrink-0">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-outfit font-bold text-xl text-[#0F172A]">Model &amp; Data</h2>
+                        <p class="text-slate-400 text-xs">How the prediction works</p>
+                    </div>
+                </div>
+                <div class="border-t border-[#DEEBF7] pt-5">
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        The prediction model is a supervised <strong class="text-[#0F172A]">Decision Tree Classifier</strong> trained on <strong class="text-[#3182BD]">65,435 sanitized clinical patient records</strong>. The dataset contains a balanced 50/50 class split of cardiovascular disease presence and absence.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed mt-4">
+                        11 health parameters (blood pressure, cholesterol, glucose, BMI, and lifestyle indicators) are processed and standardized to output a risk probability with <strong class="text-[#3182BD]">87.2% evaluation accuracy</strong>.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- DEVELOPER SECTION -->
+        <div class="bg-white border border-[#DEEBF7] rounded-3xl p-7 sm:p-10 shadow-sm space-y-6">
+            <h2 class="font-outfit font-bold text-lg text-[#0F172A] flex items-center gap-2">
+                <i class="fa-solid fa-user-gear text-[#3182BD]"></i> Project Developer
+            </h2>
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-6 rounded-2xl bg-gradient-to-r from-[#F4F8FA] to-[#DEEBF7]/60 border border-[#DEEBF7]">
+                <!-- Avatar -->
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-[#3182BD] flex items-center justify-center text-white text-2xl sm:text-3xl font-bold font-outfit shadow-md flex-shrink-0">
+                    MP
+                </div>
+
+                <!-- Info -->
+                <div class="flex-grow space-y-2">
+                    <h3 class="font-outfit font-extrabold text-xl sm:text-2xl text-[#0F172A]">Mahek Patel</h3>
+                    <p class="text-slate-500 text-sm font-medium">Developer &amp; Project Creator</p>
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DEEBF7] border border-[#9ECAE1] text-[#3182BD] text-xs font-semibold">
+                            <i class="fa-solid fa-brain text-xs"></i> Machine Learning
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DEEBF7] border border-[#9ECAE1] text-[#3182BD] text-xs font-semibold">
+                            <i class="fa-solid fa-heart-pulse text-xs"></i> Healthcare AI
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DEEBF7] border border-[#9ECAE1] text-[#3182BD] text-xs font-semibold">
+                            <i class="fa-solid fa-code text-xs"></i> Python / Flask
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
