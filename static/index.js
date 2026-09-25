@@ -1,7 +1,49 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     // ----------------------------------------------------
-    // MOBILE NAVIGATION DRAWER
+    // TAB NAVIGATION (For Standalone Dashboard)
+    // ----------------------------------------------------
+    const tabAnalyzer = document.getElementById("tab-analyzer");
+    const tabInsights = document.getElementById("tab-insights");
+    const panelAnalyzer = document.getElementById("panel-analyzer");
+    const panelInsights = document.getElementById("panel-insights");
+
+    if (tabAnalyzer && tabInsights && panelAnalyzer && panelInsights) {
+        tabAnalyzer.addEventListener("click", () => {
+            tabAnalyzer.classList.add("active");
+            tabAnalyzer.setAttribute("aria-selected", "true");
+            tabAnalyzer.setAttribute("tabindex", "0");
+
+            tabInsights.classList.remove("active");
+            tabInsights.setAttribute("aria-selected", "false");
+            tabInsights.setAttribute("tabindex", "-1");
+
+            panelAnalyzer.classList.add("active");
+            panelAnalyzer.removeAttribute("hidden");
+
+            panelInsights.classList.remove("active");
+            panelInsights.setAttribute("hidden", "true");
+        });
+
+        tabInsights.addEventListener("click", () => {
+            tabInsights.classList.add("active");
+            tabInsights.setAttribute("aria-selected", "true");
+            tabInsights.setAttribute("tabindex", "0");
+
+            tabAnalyzer.classList.remove("active");
+            tabAnalyzer.setAttribute("aria-selected", "false");
+            tabAnalyzer.setAttribute("tabindex", "-1");
+
+            panelInsights.classList.add("active");
+            panelInsights.removeAttribute("hidden");
+
+            panelAnalyzer.classList.remove("active");
+            panelAnalyzer.setAttribute("hidden", "true");
+        });
+    }
+
+    // ----------------------------------------------------
+    // MOBILE NAVIGATION DRAWER (For Template Layouts)
     // ----------------------------------------------------
     const mobileMenuBtn = document.getElementById("mobile-menu-btn");
     const mobileMenu = document.getElementById("mobile-menu");
@@ -61,8 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const adviceContainer = document.getElementById("advice-container");
     const resetBtn = document.getElementById("reset-btn");
 
-    // Circular progress indicator configuration (radius = 80, matches SVG r="80")
-    const ringRadius = 80;
+    // Dynamic Circular Progress Indicator (reads SVG r attribute)
+    const ringRadius = progressIndicator ? (parseFloat(progressIndicator.getAttribute("r")) || 80) : 80;
     const ringCircumference = 2 * Math.PI * ringRadius;
     if (progressIndicator) {
         progressIndicator.style.strokeDasharray = `${ringCircumference} ${ringCircumference}`;
@@ -71,67 +113,104 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function setGaugeProgress(percent) {
         if (!progressIndicator) return;
-        const offset = ringCircumference - (percent / 100) * ringCircumference;
+        const clampedPercent = Math.min(Math.max(percent, 0), 100);
+        const offset = ringCircumference - (clampedPercent / 100) * ringCircumference;
         progressIndicator.style.strokeDashoffset = offset;
     }
 
+    // High-Visibility Error Handlers
     function showFormError(msg) {
-        if (formErrorAlert && formErrorText) {
-            formErrorText.textContent = msg;
+        if (formErrorAlert) {
+            if (formErrorText) {
+                formErrorText.textContent = msg;
+            } else {
+                formErrorAlert.textContent = msg;
+            }
             formErrorAlert.classList.remove("hidden");
+            formErrorAlert.classList.add("visible");
+            formErrorAlert.scrollIntoView({ behavior: "smooth", block: "center" });
         }
         if (errorBpRelation && !errorBpRelation.textContent) {
             errorBpRelation.textContent = msg;
+            errorBpRelation.style.display = "flex";
         }
     }
 
     function clearFormError() {
-        if (formErrorAlert && formErrorText) {
-            formErrorText.textContent = "";
+        if (formErrorAlert) {
+            if (formErrorText) formErrorText.textContent = "";
             formErrorAlert.classList.add("hidden");
+            formErrorAlert.classList.remove("visible");
         }
         if (errorBpRelation) {
             errorBpRelation.textContent = "";
+            errorBpRelation.style.display = "none";
         }
+        [ageInput, apHiInput, apLoInput].forEach(inp => {
+            if (inp) inp.classList.remove("is-invalid");
+        });
     }
 
-    // Real-time validations
+    // Real-Time Form Input Validations
     function validateFormInputs() {
         if (!ageInput || !apHiInput || !apLoInput) return true;
         let isValid = true;
+        let firstInvalidField = null;
 
         if (errorAge) errorAge.textContent = "";
         if (errorApHi) errorApHi.textContent = "";
         if (errorApLo) errorApLo.textContent = "";
         clearFormError();
 
-        // Validate Age (18 to 100)
+        // 1. Age (18 to 100)
         const age = parseInt(ageInput.value, 10);
         if (isNaN(age) || age < 18 || age > 100) {
             if (errorAge) errorAge.textContent = "Please enter an age between 18 and 100 years.";
+            ageInput.classList.add("is-invalid");
             isValid = false;
+            if (!firstInvalidField) firstInvalidField = ageInput;
+        } else {
+            ageInput.classList.remove("is-invalid");
         }
 
-        // Validate Systolic BP
+        // 2. Systolic Blood Pressure (60 to 250)
         const apHi = parseInt(apHiInput.value, 10);
         if (isNaN(apHi) || apHi < 60 || apHi > 250) {
             if (errorApHi) errorApHi.textContent = "Systolic blood pressure must be between 60 and 250 mmHg.";
+            apHiInput.classList.add("is-invalid");
             isValid = false;
+            if (!firstInvalidField) firstInvalidField = apHiInput;
+        } else {
+            apHiInput.classList.remove("is-invalid");
         }
 
-        // Validate Diastolic BP
+        // 3. Diastolic Blood Pressure (40 to 200)
         const apLo = parseInt(apLoInput.value, 10);
         if (isNaN(apLo) || apLo < 40 || apLo > 200) {
             if (errorApLo) errorApLo.textContent = "Diastolic blood pressure must be between 40 and 200 mmHg.";
+            apLoInput.classList.add("is-invalid");
             isValid = false;
+            if (!firstInvalidField) firstInvalidField = apLoInput;
+        } else {
+            apLoInput.classList.remove("is-invalid");
         }
 
-        // Cross-field validation: ap_hi >= ap_lo
+        // 4. Clinical Cross-Check: ap_hi >= ap_lo
         if (isValid && apHi < apLo) {
-            const bpMsg = "Systolic blood pressure (ap_hi) cannot be lower than Diastolic blood pressure (ap_lo).";
-            if (errorBpRelation) errorBpRelation.textContent = bpMsg;
+            const bpMsg = "Clinical Conflict: Systolic pressure (ap_hi) cannot be lower than Diastolic pressure (ap_lo).";
+            if (errorBpRelation) {
+                errorBpRelation.textContent = bpMsg;
+                errorBpRelation.style.display = "flex";
+            }
             showFormError(bpMsg);
+            apHiInput.classList.add("is-invalid");
+            apLoInput.classList.add("is-invalid");
             isValid = false;
+            if (!firstInvalidField) firstInvalidField = apHiInput;
+        }
+
+        if (!isValid && firstInvalidField) {
+            firstInvalidField.focus();
         }
 
         return isValid;
@@ -139,7 +218,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     [ageInput, apHiInput, apLoInput].forEach(input => {
         if (input) {
-            input.addEventListener("input", validateFormInputs);
+            input.addEventListener("input", () => {
+                if (errorAge) errorAge.textContent = "";
+                if (errorApHi) errorApHi.textContent = "";
+                if (errorApLo) errorApLo.textContent = "";
+                clearFormError();
+            });
         }
     });
 
@@ -152,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
 
             if (!validateFormInputs()) {
-                showFormError("Please correct the clinical values highlighted above.");
+                showFormError("Please correct the highlighted clinical values above before submitting.");
                 return;
             }
 
@@ -162,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (btnText) btnText.classList.add("hidden");
             if (btnLoader) btnLoader.classList.remove("hidden");
 
-            // Extract values defensively from both FormData and direct DOM elements
+            // Extract all 11 model features defensively
             const formData = new FormData(form);
 
             const genderEl = form.querySelector('input[name="gender"]:checked');
@@ -204,19 +288,28 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             try {
+                // Determine API endpoint: use relative /api/predict on HTTP/HTTPS or local port fallback on file://
                 const isLocalFile = window.location.protocol === "file:";
                 const apiUrl = isLocalFile ? "http://127.0.0.1:8000/api/predict" : "/api/predict";
 
-                const response = await fetch(apiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
+                let response;
+                try {
+                    response = await fetch(apiUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                } catch (networkErr) {
+                    throw new Error(
+                        `Cannot connect to prediction server at ${apiUrl}. ` +
+                        `Please verify the backend is running (run: /opt/anaconda3/bin/python3 app.py).`
+                    );
+                }
 
                 if (response.status === 429) {
-                    throw new Error("Rate limit exceeded. Please wait a minute before submitting again.");
+                    throw new Error("Rate limit exceeded. Too many requests. Please wait a minute before submitting again.");
                 }
 
                 if (!response.ok) {
@@ -267,7 +360,6 @@ document.addEventListener("DOMContentLoaded", () => {
         setGaugeProgress(riskPercent);
 
         if (riskStatusBadge) {
-            riskStatusBadge.className = "severity-badge inline-block px-5 py-2 rounded-full font-outfit font-bold text-sm tracking-wide shadow-sm";
             let status = "Low Risk";
             let badgeClass = "risk-low";
 
@@ -278,9 +370,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 status = "Moderate Risk";
                 badgeClass = "risk-moderate";
             }
-            
+
+            riskStatusBadge.className = `severity-badge ${badgeClass}`;
             riskStatusBadge.textContent = status;
-            riskStatusBadge.classList.add(badgeClass);
         }
 
         generateRecommendations(inputs);
@@ -303,12 +395,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (bmi >= 25.0) {
             recommendations.push({
                 icon: "fa-solid fa-circle-xmark text-rose-600",
-                text: `Body Mass Index (BMI: ${bmi}) is in the overweight/obesity range. A heart-healthy diet and regular exercise are recommended.`
+                text: `Body Mass Index (BMI: ${bmi}) is in the overweight/obese category. Balanced nutrition and regular physical activity are recommended.`
             });
         } else {
             recommendations.push({
                 icon: "fa-solid fa-circle-check text-emerald-600",
-                text: `Optimal Body Mass Index (BMI: ${bmi}). Continue balanced nutritional habits.`
+                text: `Optimal Body Mass Index logged (BMI: ${bmi}). Continue your nutritional and activity regimen.`
             });
         }
 
@@ -334,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (inputs.cholesterol > 1) {
             recommendations.push({
                 icon: "fa-solid fa-triangle-exclamation text-amber-600",
-                text: "Elevated cholesterol level detected. Limit saturated fats and increase soluble fiber."
+                text: "Elevated cholesterol level detected. Limit saturated fats and increase soluble dietary fiber."
             });
         }
         if (inputs.gluc > 1) {
@@ -371,8 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         recommendations.forEach(rec => {
             const li = document.createElement("li");
-            li.className = "flex items-start gap-2.5 p-3 rounded-xl bg-[#F4F8FA] border border-[#DEEBF7]/70";
-            li.innerHTML = `<i class="${rec.icon} mt-0.5 text-sm flex-shrink-0"></i> <span class="leading-relaxed text-slate-700">${rec.text}</span>`;
+            li.innerHTML = `<i class="${rec.icon}"></i> <span>${rec.text}</span>`;
             adviceContainer.appendChild(li);
         });
     }
