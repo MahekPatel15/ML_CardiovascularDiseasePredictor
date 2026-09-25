@@ -45,6 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const errorApHi = document.getElementById("error-ap-hi");
     const errorApLo = document.getElementById("error-ap-lo");
     const errorBpRelation = document.getElementById("error-bp-relation");
+    const formErrorAlert = document.getElementById("form-error-alert");
+    const formErrorText = document.getElementById("form-error-text");
     
     const submitBtn = document.getElementById("submit-btn");
     const btnText = submitBtn ? submitBtn.querySelector(".btn-text") : null;
@@ -73,6 +75,26 @@ document.addEventListener("DOMContentLoaded", () => {
         progressIndicator.style.strokeDashoffset = offset;
     }
 
+    function showFormError(msg) {
+        if (formErrorAlert && formErrorText) {
+            formErrorText.textContent = msg;
+            formErrorAlert.classList.remove("hidden");
+        }
+        if (errorBpRelation && !errorBpRelation.textContent) {
+            errorBpRelation.textContent = msg;
+        }
+    }
+
+    function clearFormError() {
+        if (formErrorAlert && formErrorText) {
+            formErrorText.textContent = "";
+            formErrorAlert.classList.add("hidden");
+        }
+        if (errorBpRelation) {
+            errorBpRelation.textContent = "";
+        }
+    }
+
     // Real-time validations
     function validateFormInputs() {
         if (!ageInput || !apHiInput || !apLoInput) return true;
@@ -81,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (errorAge) errorAge.textContent = "";
         if (errorApHi) errorApHi.textContent = "";
         if (errorApLo) errorApLo.textContent = "";
-        if (errorBpRelation) errorBpRelation.textContent = "";
+        clearFormError();
 
         // Validate Age (18 to 100)
         const age = parseInt(ageInput.value, 10);
@@ -106,7 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Cross-field validation: ap_hi >= ap_lo
         if (isValid && apHi < apLo) {
-            if (errorBpRelation) errorBpRelation.textContent = "Error: Systolic pressure (ap_hi) cannot be lower than Diastolic pressure (ap_lo).";
+            const bpMsg = "Systolic blood pressure (ap_hi) cannot be lower than Diastolic blood pressure (ap_lo).";
+            if (errorBpRelation) errorBpRelation.textContent = bpMsg;
+            showFormError(bpMsg);
             isValid = false;
         }
 
@@ -128,27 +152,55 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
 
             if (!validateFormInputs()) {
+                showFormError("Please correct the clinical values highlighted above.");
                 return;
             }
+
+            clearFormError();
 
             if (submitBtn) submitBtn.disabled = true;
             if (btnText) btnText.classList.add("hidden");
             if (btnLoader) btnLoader.classList.remove("hidden");
 
+            // Extract values defensively from both FormData and direct DOM elements
             const formData = new FormData(form);
-            
+
+            const genderEl = form.querySelector('input[name="gender"]:checked');
+            const genderVal = genderEl ? parseInt(genderEl.value, 10) : (parseInt(formData.get("gender"), 10) || 1);
+
+            const heightInput = document.getElementById("height");
+            const heightVal = heightInput ? parseFloat(heightInput.value) : (parseFloat(formData.get("height")) || 165.0);
+
+            const weightInput = document.getElementById("weight");
+            const weightVal = weightInput ? parseFloat(weightInput.value) : (parseFloat(formData.get("weight")) || 70.0);
+
+            const apHiVal = apHiInput ? parseInt(apHiInput.value, 10) : (parseInt(formData.get("ap_hi"), 10) || 120);
+            const apLoVal = apLoInput ? parseInt(apLoInput.value, 10) : (parseInt(formData.get("ap_lo"), 10) || 80);
+
+            const cholEl = form.querySelector('input[name="cholesterol"]:checked');
+            const cholVal = cholEl ? parseInt(cholEl.value, 10) : (parseInt(formData.get("cholesterol"), 10) || 1);
+
+            const glucEl = form.querySelector('input[name="gluc"]:checked');
+            const glucVal = glucEl ? parseInt(glucEl.value, 10) : (parseInt(formData.get("gluc"), 10) || 1);
+
+            const smokeVal = document.getElementById("smoke")?.checked ? 1 : 0;
+            const alcoVal = document.getElementById("alco")?.checked ? 1 : 0;
+            const activeVal = document.getElementById("active")?.checked ? 1 : 0;
+
+            const ageVal = ageInput ? parseInt(ageInput.value, 10) : (parseInt(formData.get("age_years"), 10) || 45);
+
             const payload = {
-                gender: parseInt(formData.get("gender"), 10),
-                height: parseFloat(formData.get("height")),
-                weight: parseFloat(formData.get("weight")),
-                ap_hi: parseInt(formData.get("ap_hi"), 10),
-                ap_lo: parseInt(formData.get("ap_lo"), 10),
-                cholesterol: parseInt(formData.get("cholesterol"), 10),
-                gluc: parseInt(formData.get("gluc"), 10),
-                smoke: document.getElementById("smoke")?.checked ? 1 : 0,
-                alco: document.getElementById("alco")?.checked ? 1 : 0,
-                active: document.getElementById("active")?.checked ? 1 : 0,
-                age_years: parseInt(formData.get("age_years"), 10)
+                gender: genderVal,
+                height: heightVal,
+                weight: weightVal,
+                ap_hi: apHiVal,
+                ap_lo: apLoVal,
+                cholesterol: cholVal,
+                gluc: glucVal,
+                smoke: smokeVal,
+                alco: alcoVal,
+                active: activeVal,
+                age_years: ageVal
             };
 
             try {
@@ -164,32 +216,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (response.status === 429) {
-                    throw new Error("Too many predictions. Please wait a minute before trying again.");
+                    throw new Error("Rate limit exceeded. Please wait a minute before submitting again.");
                 }
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || "Server error occurred during analysis.");
+                    let errorDetail = "Server error occurred during analysis.";
+                    try {
+                        const errorData = await response.json();
+                        if (typeof errorData.detail === "string") {
+                            errorDetail = errorData.detail;
+                        } else if (Array.isArray(errorData.detail)) {
+                            errorDetail = errorData.detail.map(d => {
+                                const loc = Array.isArray(d.loc) ? d.loc.filter(x => x !== 'body').join('.') : '';
+                                return loc ? `${loc}: ${d.msg}` : (d.msg || JSON.stringify(d));
+                            }).join("; ");
+                        } else if (errorData.message) {
+                            errorDetail = errorData.message;
+                        }
+                    } catch (_) {
+                        errorDetail = `Request failed (${response.status}: ${response.statusText})`;
+                    }
+                    throw new Error(errorDetail);
                 }
 
                 const data = await response.json();
                 displayAssessmentReport(data, payload);
 
             } catch (error) {
-                loggerError(error.message);
+                showFormError(error.message);
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
                 if (btnText) btnText.classList.remove("hidden");
                 if (btnLoader) btnLoader.classList.add("hidden");
             }
         });
-    }
-
-    function loggerError(msg) {
-        if (errorBpRelation) {
-            errorBpRelation.textContent = `System Alert: ${msg}`;
-            errorBpRelation.style.color = "#be123c";
-        }
     }
 
 
@@ -224,6 +284,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         generateRecommendations(inputs);
+
+        // Smooth scroll to result card on small screens
+        if (window.innerWidth < 1024) {
+            cardResult.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     }
 
     function generateRecommendations(inputs) {
@@ -238,30 +303,30 @@ document.addEventListener("DOMContentLoaded", () => {
         if (bmi >= 25.0) {
             recommendations.push({
                 icon: "fa-solid fa-circle-xmark text-rose-600",
-                text: `Your Body Mass Index (BMI: ${bmi}) indicates overweight/obesity range. Balanced nutrition and exercise are recommended.`
+                text: `Body Mass Index (BMI: ${bmi}) is in the overweight/obesity range. A heart-healthy diet and regular exercise are recommended.`
             });
         } else {
             recommendations.push({
                 icon: "fa-solid fa-circle-check text-emerald-600",
-                text: `Optimal Body Mass Index detected (BMI: ${bmi}). Maintain physical activity.`
+                text: `Optimal Body Mass Index (BMI: ${bmi}). Continue balanced nutritional habits.`
             });
         }
 
         // 2. Blood pressure check
         if (inputs.ap_hi >= 140 || inputs.ap_lo >= 90) {
             recommendations.push({
-                icon: "fa-solid fa-triangle-exclamation text-amber-600",
-                text: `Hypertensive Blood Pressure detected (${inputs.ap_hi}/${inputs.ap_lo} mmHg). Consult a healthcare provider.`
+                icon: "fa-solid fa-triangle-exclamation text-rose-600",
+                text: `Stage 2 Hypertensive Blood Pressure (${inputs.ap_hi}/${inputs.ap_lo} mmHg). Please consult a physician promptly.`
             });
         } else if (inputs.ap_hi >= 120 || inputs.ap_lo >= 80) {
             recommendations.push({
                 icon: "fa-solid fa-triangle-exclamation text-amber-600",
-                text: `Pre-hypertensive Blood Pressure detected (${inputs.ap_hi}/${inputs.ap_lo} mmHg). Low-sodium diet recommended.`
+                text: `Elevated / Pre-hypertensive Blood Pressure (${inputs.ap_hi}/${inputs.ap_lo} mmHg). Reduce dietary sodium and monitor regularly.`
             });
         } else {
             recommendations.push({
                 icon: "fa-solid fa-circle-check text-emerald-600",
-                text: `Optimal Blood Pressure profile logged (${inputs.ap_hi}/${inputs.ap_lo} mmHg).`
+                text: `Normal Blood Pressure profile (${inputs.ap_hi}/${inputs.ap_lo} mmHg).`
             });
         }
 
@@ -269,13 +334,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (inputs.cholesterol > 1) {
             recommendations.push({
                 icon: "fa-solid fa-triangle-exclamation text-amber-600",
-                text: "Elevated cholesterol detected. Limit saturated fats and incorporate fiber-rich foods."
+                text: "Elevated cholesterol level detected. Limit saturated fats and increase soluble fiber."
             });
         }
         if (inputs.gluc > 1) {
             recommendations.push({
                 icon: "fa-solid fa-triangle-exclamation text-amber-600",
-                text: "Elevated blood glucose detected. Limit refined sugars and processed carbohydrates."
+                text: "Elevated blood glucose detected. Minimize added sugars and refined carbohydrates."
             });
         }
 
@@ -283,24 +348,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (inputs.smoke === 1) {
             recommendations.push({
                 icon: "fa-solid fa-circle-xmark text-rose-600",
-                text: "Tobacco smoking increases vascular pressure. Cessation program recommended."
+                text: "Smoking significantly increases arterial plaque risk. Smoking cessation is strongly advised."
             });
         }
         if (inputs.alco === 1) {
             recommendations.push({
                 icon: "fa-solid fa-triangle-exclamation text-amber-600",
-                text: "Moderate or eliminate alcohol intake to support arterial health."
+                text: "Limit alcohol intake to maintain healthy arterial compliance and cardiovascular stability."
             });
         }
         if (inputs.active === 0) {
             recommendations.push({
                 icon: "fa-solid fa-circle-xmark text-rose-600",
-                text: "Sedentary lifestyle detected. Aim for at least 150 minutes of weekly aerobic exercise."
+                text: "Sedentary activity level logged. Incorporate at least 150 minutes of moderate aerobic activity weekly."
             });
         } else {
             recommendations.push({
                 icon: "fa-solid fa-circle-check text-emerald-600",
-                text: "Physical activity target achieved. Regular aerobic exercise supports myocardial strength."
+                text: "Active physical lifestyle maintained. Regular activity fortifies myocardial strength."
             });
         }
 
@@ -316,12 +381,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resetBtn && form) {
         resetBtn.addEventListener("click", () => {
             form.reset();
+            
+            // Restore default values for range sliders and text displays
+            const hSlider = document.getElementById("height");
+            const wSlider = document.getElementById("weight");
+            if (hSlider) hSlider.value = "165";
+            if (wSlider) wSlider.value = "70";
             if (heightVal) heightVal.textContent = "165 cm";
             if (weightVal) weightVal.textContent = "70 kg";
             
+            // Clear validation errors and alerts
+            clearFormError();
+            if (errorAge) errorAge.textContent = "";
+            if (errorApHi) errorApHi.textContent = "";
+            if (errorApLo) errorApLo.textContent = "";
+            
+            // Revert results UI back to awaiting state
             if (cardResult) cardResult.classList.add("hidden");
             if (placeholderResult) placeholderResult.classList.remove("hidden");
             setGaugeProgress(0);
+
+            // Scroll back smoothly to top of form
+            form.scrollIntoView({ behavior: "smooth", block: "start" });
         });
     }
 });

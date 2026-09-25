@@ -1,0 +1,16 @@
+# Vercel Deployment Ignore Rules
+# Keep serverless payload minimal and well below deployment quotas
+
+cardio_train.csv
+Cardio_Cleaning_DecisionTree.ipynb
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.DS_Store
+.git/
+.github/
+.vscode/
+.idea/
+*.log

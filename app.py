@@ -7,10 +7,11 @@ from typing import Dict, List
 import joblib
 import pandas as pd
 from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 # Configure logging securely (avoid logging PII/sensitive request data)
@@ -26,12 +27,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Policy - strictly configured for local development
+# CORS Policy - strictly configured for local and deployed environments
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -81,13 +82,61 @@ class SimpleIPRateLimiter:
 ip_limiter = SimpleIPRateLimiter(requests_limit=30, window_seconds=60)
 
 async def rate_limit_check(request: Request):
-    client_ip = request.client.host if request.client else "unknown"
+    """
+    Rate limiter dependency that extracts client IP respecting X-Forwarded-For
+    headers when deployed behind reverse proxies / Vercel Edge networks.
+    """
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    elif request.client and request.client.host:
+        client_ip = request.client.host
+    else:
+        client_ip = "127.0.0.1"
+
     if not ip_limiter.check_limit(client_ip):
         logger.warning(f"Rate limit exceeded for client IP: {client_ip}")
         raise HTTPException(
             status_code=429,
             detail="Rate limit exceeded. Too many requests. Please try again in a minute."
         )
+
+
+# ----------------------------------------------------
+# SECURITY: Global Error Handlers (OWASP Non-Revealing)
+# ----------------------------------------------------
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Sanitizes Pydantic validation errors into clean, human-readable strings
+    preventing ugly raw JSON / stack exposure to the client.
+    """
+    error_messages = []
+    for err in exc.errors():
+        loc = err.get("loc", ())
+        field = " -> ".join(str(item) for item in loc if item != "body")
+        msg = err.get("msg", "Validation error")
+        error_messages.append(f"{field}: {msg}" if field else msg)
+
+    clean_message = "; ".join(error_messages) or "Invalid input data supplied."
+    logger.warning(f"Validation rejection on {request.url.path}: {clean_message}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": clean_message}
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Global safety net catching unhandled exceptions. Logs error internally
+    while returning an opaque, non-revealing response to prevent information disclosure.
+    """
+    logger.error(f"Unhandled exception on {request.url.path}: {str(exc)}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal server error occurred. Please try again later."}
+    )
 
 
 # ----------------------------------------------------
@@ -255,12 +304,10 @@ async def page_about(request: Request):
 # ----------------------------------------------------
 static_dir = os.path.join(BASE_DIR, "static")
 if not os.path.exists(static_dir):
-    os.makedirs(static_dir)
+    os.makedirs(static_dir, exist_ok=True)
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
-app.mount("/", StaticFiles(directory=static_dir, html=False), name="static_root")
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
-
