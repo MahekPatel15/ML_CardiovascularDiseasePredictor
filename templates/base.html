@@ -72,15 +72,15 @@
 <body class="bg-[#F4F8FA] text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-[#9ECAE1]/40 selection:text-[#0F172A]">
 
     <!-- RESPONSIVE TOP HEADER NAVBAR -->
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#DEEBF7] shadow-sm">
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#DEEBF7] shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
                 
                 <!-- Left Group: Logo + 4 Nav Links -->
-                <div class="flex items-center gap-6 lg:gap-10">
+                <div class="flex items-center gap-4 lg:gap-8">
                     <!-- Brand Logo -->
-                    <a href="/" class="flex items-center gap-2.5 group focus:outline-none flex-shrink-0">
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3182BD] flex items-center justify-center text-white shadow-sm group-hover:bg-[#2166AC] transition-colors">
+                    <a href="/" class="flex items-center gap-2.5 group focus:outline-none flex-shrink-0" aria-label="CardioGuard AI Homepage">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#2166AC] to-[#3182BD] flex items-center justify-center text-white shadow-md shadow-[#3182BD]/20 group-hover:scale-105 transition-transform">
                             <i class="fa-solid fa-heart-pulse text-lg"></i>
                         </div>
                         <span class="font-outfit font-extrabold text-xl sm:text-2xl tracking-tight text-[#0F172A]">
@@ -89,26 +89,30 @@
                     </a>
 
                     <!-- Desktop Header 4 Navigation Items Beside Logo -->
-                    <nav class="navbar-desktop-group items-center gap-1.5">
-                        <a href="/" class="px-3.5 py-2 rounded-xl font-outfit text-sm font-semibold transition-colors flex items-center gap-2 {% if active_page == 'home' %}bg-[#DEEBF7] text-[#3182BD] border border-[#9ECAE1] font-bold{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
-                            <i class="fa-solid fa-house text-xs"></i> Home
+                    <nav class="navbar-desktop-group items-center gap-1 sm:gap-1.5" aria-label="Main Navigation">
+                        <a href="/" class="px-3 py-1.5 lg:px-3.5 lg:py-2 rounded-xl font-outfit text-xs lg:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 lg:gap-2 {% if active_page == 'home' %}bg-[#DEEBF7] text-[#2166AC] border border-[#9ECAE1] font-bold shadow-xs{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
+                            <i class="fa-solid fa-house text-xs text-[#3182BD]"></i> Home
                         </a>
-                        <a href="/predictor" class="px-3.5 py-2 rounded-xl font-outfit text-sm font-semibold transition-colors flex items-center gap-2 {% if active_page == 'predictor' %}bg-[#DEEBF7] text-[#3182BD] border border-[#9ECAE1] font-bold{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
-                            <i class="fa-solid fa-stethoscope text-xs"></i> Predictor
+                        <a href="/predictor" class="px-3 py-1.5 lg:px-3.5 lg:py-2 rounded-xl font-outfit text-xs lg:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 lg:gap-2 {% if active_page == 'predictor' %}bg-[#DEEBF7] text-[#2166AC] border border-[#9ECAE1] font-bold shadow-xs{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
+                            <i class="fa-solid fa-stethoscope text-xs text-[#3182BD]"></i> Predictor
                         </a>
-                        <a href="/insights" class="px-3.5 py-2 rounded-xl font-outfit text-sm font-semibold transition-colors flex items-center gap-2 {% if active_page == 'insights' %}bg-[#DEEBF7] text-[#3182BD] border border-[#9ECAE1] font-bold{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
-                            <i class="fa-solid fa-chart-pie text-xs"></i> Data Insights
+                        <a href="/insights" class="px-3 py-1.5 lg:px-3.5 lg:py-2 rounded-xl font-outfit text-xs lg:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 lg:gap-2 {% if active_page == 'insights' %}bg-[#DEEBF7] text-[#2166AC] border border-[#9ECAE1] font-bold shadow-xs{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
+                            <i class="fa-solid fa-chart-pie text-xs text-[#3182BD]"></i> Data Insights
                         </a>
-                        <a href="/about" class="px-3.5 py-2 rounded-xl font-outfit text-sm font-semibold transition-colors flex items-center gap-2 {% if active_page == 'about' %}bg-[#DEEBF7] text-[#3182BD] border border-[#9ECAE1] font-bold{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
-                            <i class="fa-solid fa-circle-info text-xs"></i> About
+                        <a href="/about" class="px-3 py-1.5 lg:px-3.5 lg:py-2 rounded-xl font-outfit text-xs lg:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 lg:gap-2 {% if active_page == 'about' %}bg-[#DEEBF7] text-[#2166AC] border border-[#9ECAE1] font-bold shadow-xs{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
+                            <i class="fa-solid fa-circle-info text-xs text-[#3182BD]"></i> About
                         </a>
                     </nav>
                 </div>
 
-                <!-- Right Group: CTA Button -->
-                <div class="navbar-desktop-group items-center">
-                    <a href="/predictor" class="px-5 py-2.5 rounded-xl font-outfit font-bold text-xs text-white bg-[#3182BD] hover:bg-[#2166AC] transition-colors shadow-sm flex items-center gap-2">
-                        <i class="fa-solid fa-bolt"></i> Risk Check
+                <!-- Right Group: Status Badge + CTA Button -->
+                <div class="navbar-desktop-group items-center gap-3">
+                    <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Model Active · 87.2% Acc</span>
+                    </div>
+                    <a href="/predictor" class="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-outfit font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#3182BD] to-[#2166AC] hover:from-[#2166AC] hover:to-[#1D4ED8] shadow-md shadow-[#3182BD]/20 hover:shadow-lg transition-all duration-150 transform hover:-translate-y-0.5">
+                        <i class="fa-solid fa-heart-pulse"></i> Assess Risk
                     </a>
                 </div>
 

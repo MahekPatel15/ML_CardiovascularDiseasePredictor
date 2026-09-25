@@ -143,13 +143,27 @@ async def vercel_prefix_middleware(request: Request, call_next):
     Normalizes path prefixes automatically when deployed behind Vercel serverless rewrites.
     Guarantees seamless routing for both / and /api prefixed routes.
     """
+    matched_path = request.headers.get("x-matched-path")
+    if matched_path and matched_path != request.scope.get("path"):
+        request.scope["path"] = matched_path
+        request.scope["raw_path"] = matched_path.encode("utf-8")
+
     path = request.scope.get("path", "")
-    if path == "/api" or path == "/api/":
+    if path in ("/api/index.py", "/api/index", "/api", "/api/"):
         request.scope["path"] = "/"
+        request.scope["raw_path"] = b"/"
+    elif path.startswith("/api/index.py/"):
+        clean_p = path[13:]
+        request.scope["path"] = clean_p
+        request.scope["raw_path"] = clean_p.encode("utf-8")
     elif path.startswith("/api/api/"):
-        request.scope["path"] = path[4:]
+        clean_p = path[4:]
+        request.scope["path"] = clean_p
+        request.scope["raw_path"] = clean_p.encode("utf-8")
+
     response = await call_next(request)
     return response
+
 
 
 # ----------------------------------------------------
@@ -240,6 +254,7 @@ class PredictionResponse(BaseModel):
 )
 @app.post("/predict", response_model=PredictionResponse, dependencies=[Depends(rate_limit_check)], include_in_schema=False)
 @app.post("/api/api/predict", response_model=PredictionResponse, dependencies=[Depends(rate_limit_check)], include_in_schema=False)
+@app.post("/api/index.py/api/predict", response_model=PredictionResponse, dependencies=[Depends(rate_limit_check)], include_in_schema=False)
 async def predict_cardio(data: PredictionRequest):
     try:
         feature_order = [
@@ -294,6 +309,8 @@ async def health_check():
 @app.get("/", response_class=HTMLResponse, summary="Home Page")
 @app.get("/api", response_class=HTMLResponse, include_in_schema=False)
 @app.get("/api/", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/api/index", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/api/index.py", response_class=HTMLResponse, include_in_schema=False)
 async def page_home(request: Request):
     return templates.TemplateResponse(request, "index.html", {"active_page": "home"})
 
