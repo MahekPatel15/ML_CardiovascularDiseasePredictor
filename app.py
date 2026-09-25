@@ -71,20 +71,17 @@ class SimpleIPRateLimiter:
 
     def check_limit(self, ip: str) -> bool:
         now = time.time()
-        # Clean up timestamps older than the sliding window
         self.history[ip] = [t for t in self.history[ip] if now - t < self.window_seconds]
         if len(self.history[ip]) >= self.requests_limit:
             return False
         self.history[ip].append(now)
         return True
 
-# Initialize limiter: Max 30 requests per 60 seconds per IP
 ip_limiter = SimpleIPRateLimiter(requests_limit=30, window_seconds=60)
 
 async def rate_limit_check(request: Request):
     """
-    Rate limiter dependency that extracts client IP respecting X-Forwarded-For
-    headers when deployed behind reverse proxies / Vercel Edge networks.
+    Rate limiter dependency extracting client IP with X-Forwarded-For support.
     """
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
@@ -108,8 +105,7 @@ async def rate_limit_check(request: Request):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
-    Sanitizes Pydantic validation errors into clean, human-readable strings
-    preventing ugly raw JSON / stack exposure to the client.
+    Sanitizes Pydantic validation errors into clean strings preventing stack exposure.
     """
     error_messages = []
     for err in exc.errors():
@@ -129,14 +125,31 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """
-    Global safety net catching unhandled exceptions. Logs error internally
-    while returning an opaque, non-revealing response to prevent information disclosure.
+    Global safety net catching unhandled exceptions and returning safe messages.
     """
     logger.error(f"Unhandled exception on {request.url.path}: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=500,
         content={"detail": "An internal server error occurred. Please try again later."}
     )
+
+
+# ----------------------------------------------------
+# VERCEL SERVERLESS PATH NORMALIZATION MIDDLEWARE
+# ----------------------------------------------------
+@app.middleware("http")
+async def vercel_prefix_middleware(request: Request, call_next):
+    """
+    Normalizes path prefixes automatically when deployed behind Vercel serverless rewrites.
+    Guarantees seamless routing for both / and /api prefixed routes.
+    """
+    path = request.scope.get("path", "")
+    if path == "/api" or path == "/api/":
+        request.scope["path"] = "/"
+    elif path.startswith("/api/api/"):
+        request.scope["path"] = path[4:]
+    response = await call_next(request)
+    return response
 
 
 # ----------------------------------------------------
@@ -216,7 +229,7 @@ class PredictionResponse(BaseModel):
 
 
 # ----------------------------------------------------
-# REST API Endpoints
+# REST API Endpoints (Direct and Vercel-Aliased)
 # ----------------------------------------------------
 @app.post(
     "/api/predict",
@@ -225,9 +238,10 @@ class PredictionResponse(BaseModel):
     summary="Calculate Cardiovascular Disease Risk",
     description="Processes physical and clinical features to predict probability of cardiovascular disease using the Decision Tree model."
 )
+@app.post("/predict", response_model=PredictionResponse, dependencies=[Depends(rate_limit_check)], include_in_schema=False)
+@app.post("/api/api/predict", response_model=PredictionResponse, dependencies=[Depends(rate_limit_check)], include_in_schema=False)
 async def predict_cardio(data: PredictionRequest):
     try:
-        # Create input DataFrame structured in the exact order model expects
         feature_order = [
             "gender", "height", "weight", "ap_hi", "ap_lo",
             "cholesterol", "gluc", "smoke", "alco", "active", "age_years"
@@ -250,10 +264,7 @@ async def predict_cardio(data: PredictionRequest):
             columns=feature_order
         )
 
-        # Scale features using pre-loaded standard scaler
         scaled_features = scaler.transform(input_data)
-
-        # Execute decision tree prediction
         prediction = int(model.predict(scaled_features)[0])
         probabilities = model.predict_proba(scaled_features)[0]
         risk_probability = float(probabilities[1])
@@ -272,29 +283,35 @@ async def predict_cardio(data: PredictionRequest):
 
 
 @app.get("/health", summary="API Health Check")
+@app.get("/api/health", include_in_schema=False)
 async def health_check():
     return {"status": "healthy", "timestamp": time.time()}
 
 
 # ----------------------------------------------------
-# FRONTEND HTML PAGE ROUTES (4-page application)
+# FRONTEND HTML PAGE ROUTES (With Vercel /api aliases)
 # ----------------------------------------------------
 @app.get("/", response_class=HTMLResponse, summary="Home Page")
+@app.get("/api", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/api/", response_class=HTMLResponse, include_in_schema=False)
 async def page_home(request: Request):
     return templates.TemplateResponse(request, "index.html", {"active_page": "home"})
 
 
 @app.get("/predictor", response_class=HTMLResponse, summary="Risk Predictor Page")
+@app.get("/api/predictor", response_class=HTMLResponse, include_in_schema=False)
 async def page_predictor(request: Request):
     return templates.TemplateResponse(request, "predictor.html", {"active_page": "predictor"})
 
 
 @app.get("/insights", response_class=HTMLResponse, summary="Data Insights Page")
+@app.get("/api/insights", response_class=HTMLResponse, include_in_schema=False)
 async def page_insights(request: Request):
     return templates.TemplateResponse(request, "insights.html", {"active_page": "insights"})
 
 
 @app.get("/about", response_class=HTMLResponse, summary="About & Documentation Page")
+@app.get("/api/about", response_class=HTMLResponse, include_in_schema=False)
 async def page_about(request: Request):
     return templates.TemplateResponse(request, "about.html", {"active_page": "about"})
 
@@ -307,6 +324,7 @@ if not os.path.exists(static_dir):
     os.makedirs(static_dir, exist_ok=True)
 
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/api/static", StaticFiles(directory=static_dir), name="api_static")
 
 if __name__ == "__main__":
     import uvicorn

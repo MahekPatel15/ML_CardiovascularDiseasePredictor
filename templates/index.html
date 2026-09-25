@@ -5,10 +5,15 @@
 {% block content %}
 
 <!-- HERO SECTION: Full width, asymmetric layout -->
-<section class="relative overflow-hidden border-b border-[#DEEBF7]" style="background: linear-gradient(135deg, #F4F8FA 0%, #DEEBF7 50%, #F4F8FA 100%);">
+<section class="relative overflow-hidden border-b border-[#DEEBF7]"
+    style="background: linear-gradient(135deg, #F4F8FA 0%, #DEEBF7 50%, #F4F8FA 100%);">
     <!-- Decorative background blobs -->
-    <div class="absolute top-0 right-0 w-96 h-96 opacity-20 pointer-events-none" style="background: radial-gradient(circle, #3182BD 0%, transparent 70%); transform: translate(30%, -30%);"></div>
-    <div class="absolute bottom-0 left-0 w-64 h-64 opacity-10 pointer-events-none" style="background: radial-gradient(circle, #9ECAE1 0%, transparent 70%); transform: translate(-30%, 30%);"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 opacity-20 pointer-events-none"
+        style="background: radial-gradient(circle, #3182BD 0%, transparent 70%); transform: translate(30%, -30%);">
+    </div>
+    <div class="absolute bottom-0 left-0 w-64 h-64 opacity-10 pointer-events-none"
+        style="background: radial-gradient(circle, #9ECAE1 0%, transparent 70%); transform: translate(-30%, 30%);">
+    </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-28 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -16,35 +21,45 @@
             <!-- Left: Text Content -->
             <div class="space-y-7 text-center lg:text-left">
                 <!-- Badge -->
-                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-[#9ECAE1] text-[#3182BD] text-xs font-semibold shadow-sm">
+                <div
+                    class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-[#9ECAE1] text-[#3182BD] text-xs font-semibold shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-[#3182BD] animate-pulse"></span>
                     Clinical Risk Screening Platform
                 </div>
 
-                <h1 class="font-outfit font-extrabold text-4xl sm:text-5xl lg:text-6xl text-[#0F172A] leading-[1.1] tracking-tight">
+                <h1
+                    class="font-outfit font-extrabold text-4xl sm:text-5xl lg:text-6xl text-[#0F172A] leading-[1.1] tracking-tight">
                     Predict Heart Risk<br>
                     <span class="text-[#3182BD]">with AI Accuracy</span>
                 </h1>
 
                 <p class="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl mx-auto lg:mx-0">
-                    CardioGuard AI evaluates your physical vitals and lifestyle indicators using a Decision Tree model trained on 65,435 clinical records.
+                    CardioGuard AI evaluates your physical vitals and lifestyle indicators using a Decision Tree model
+                    trained on 65,435 clinical records.
                 </p>
 
                 <!-- CTAs -->
-                <div class="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 pt-2">
-                    <a href="/predictor" id="hero-cta-predictor" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#3182BD] hover:bg-[#2166AC] text-white font-outfit font-bold text-sm shadow-md transition-all duration-200 flex items-center justify-center gap-2.5">
+                <div
+                    class="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 pt-2">
+                    <a href="/predictor" id="hero-cta-predictor"
+                        class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#3182BD] hover:bg-[#2166AC] text-white font-outfit font-bold text-sm shadow-md transition-all duration-200 flex items-center justify-center gap-2.5">
                         <i class="fa-solid fa-stethoscope"></i> Start Risk Assessment
                     </a>
-                    <a href="/insights" id="hero-cta-insights" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-[#DEEBF7]/60 text-[#0F172A] border border-[#DEEBF7] font-outfit font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2.5">
+                    <a href="/insights" id="hero-cta-insights"
+                        class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-[#DEEBF7]/60 text-[#0F172A] border border-[#DEEBF7] font-outfit font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2.5">
                         <i class="fa-solid fa-chart-pie text-[#3182BD]"></i> View Data Insights
                     </a>
                 </div>
 
                 <!-- Trust Badges -->
-                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-5 pt-3 text-xs text-slate-500">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-database text-[#3182BD]"></i> 65,435 Records</span>
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-[#3182BD]"></i> 87.2% Accuracy</span>
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-[#3182BD]"></i> Real-Time Results</span>
+                <div
+                    class="flex flex-wrap items-center justify-center lg:justify-start gap-5 pt-3 text-xs text-slate-500">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-database text-[#3182BD]"></i> 65,435
+                        Records</span>
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-[#3182BD]"></i> 87.2%
+                        Accuracy</span>
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-bolt text-[#3182BD]"></i> Real-Time
+                        Results</span>
                 </div>
             </div>
 
@@ -68,13 +83,15 @@
                         <div class="text-xs text-slate-500 font-medium mt-0.5">Model Accuracy</div>
                     </div>
                 </div>
-                <div class="bg-[#3182BD] border border-[#2166AC] rounded-3xl p-6 shadow-sm flex flex-col gap-3 col-span-2">
+                <div
+                    class="bg-[#3182BD] border border-[#2166AC] rounded-3xl p-6 shadow-sm flex flex-col gap-3 col-span-2">
                     <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white">
                         <i class="fa-solid fa-sitemap"></i>
                     </div>
                     <div>
                         <div class="font-outfit font-extrabold text-2xl text-white font-mono">Decision Tree</div>
-                        <div class="text-xs text-[#DEEBF7] font-medium mt-0.5">Classifier Engine · 11 Clinical Inputs</div>
+                        <div class="text-xs text-[#DEEBF7] font-medium mt-0.5">Classifier Engine · 11 Clinical Inputs
+                        </div>
                     </div>
                 </div>
             </div>
@@ -89,20 +106,25 @@
 
         <!-- Section Header -->
         <div class="text-center mb-12 sm:mb-16 space-y-3">
-            <span class="inline-block px-4 py-1.5 rounded-full bg-[#DEEBF7] text-[#3182BD] text-xs font-bold uppercase tracking-widest">How It Works</span>
-            <h2 class="font-outfit font-extrabold text-3xl sm:text-4xl text-[#0F172A]">Three Steps to Your Risk Report</h2>
+            <span
+                class="inline-block px-4 py-1.5 rounded-full bg-[#DEEBF7] text-[#3182BD] text-xs font-bold uppercase tracking-widest">How
+                It Works</span>
+            <h2 class="font-outfit font-extrabold text-3xl sm:text-4xl text-[#0F172A]">Three Steps to Your Risk Report
+            </h2>
             <p class="text-slate-500 text-sm max-w-lg mx-auto">A clinical screening pipeline in under 60 seconds</p>
         </div>
 
         <!-- Steps: Timeline layout -->
         <div class="relative">
             <!-- Connector line (desktop) -->
-            <div class="hidden md:block absolute top-10 left-0 right-0 h-px bg-[#DEEBF7] z-0" style="margin: 0 calc(100%/6);"></div>
+            <div class="hidden md:block absolute top-10 left-0 right-0 h-px bg-[#DEEBF7] z-0"
+                style="margin: 0 calc(100%/6);"></div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
                 <!-- Step 1 -->
                 <div class="flex flex-col items-center text-center space-y-4 group">
-                    <div class="w-20 h-20 rounded-3xl bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl font-outfit font-extrabold shadow-sm group-hover:bg-[#3182BD] group-hover:text-white group-hover:border-[#3182BD] transition-all duration-300">
+                    <div
+                        class="w-20 h-20 rounded-3xl bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl font-outfit font-extrabold shadow-sm group-hover:bg-[#3182BD] group-hover:text-white group-hover:border-[#3182BD] transition-all duration-300">
                         01
                     </div>
                     <h3 class="font-outfit font-bold text-lg text-[#0F172A]">Input Your Vitals</h3>
@@ -113,23 +135,27 @@
 
                 <!-- Step 2 -->
                 <div class="flex flex-col items-center text-center space-y-4 group">
-                    <div class="w-20 h-20 rounded-3xl bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl font-outfit font-extrabold shadow-sm group-hover:bg-[#3182BD] group-hover:text-white group-hover:border-[#3182BD] transition-all duration-300">
+                    <div
+                        class="w-20 h-20 rounded-3xl bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl font-outfit font-extrabold shadow-sm group-hover:bg-[#3182BD] group-hover:text-white group-hover:border-[#3182BD] transition-all duration-300">
                         02
                     </div>
                     <h3 class="font-outfit font-bold text-lg text-[#0F172A]">AI Model Analysis</h3>
                     <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
-                        Your normalized clinical vector is evaluated by our Decision Tree Classifier trained on 65,435 records.
+                        Your normalized clinical vector is evaluated by our Decision Tree Classifier trained on 65,435
+                        records.
                     </p>
                 </div>
 
                 <!-- Step 3 -->
                 <div class="flex flex-col items-center text-center space-y-4 group">
-                    <div class="w-20 h-20 rounded-3xl bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl font-outfit font-extrabold shadow-sm group-hover:bg-[#3182BD] group-hover:text-white group-hover:border-[#3182BD] transition-all duration-300">
+                    <div
+                        class="w-20 h-20 rounded-3xl bg-[#DEEBF7] border-2 border-[#9ECAE1] flex items-center justify-center text-[#3182BD] text-2xl font-outfit font-extrabold shadow-sm group-hover:bg-[#3182BD] group-hover:text-white group-hover:border-[#3182BD] transition-all duration-300">
                         03
                     </div>
                     <h3 class="font-outfit font-bold text-lg text-[#0F172A]">Get Risk Report</h3>
                     <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
-                        Receive an instant risk probability score, severity badge (Low / Moderate / High), and health recommendations.
+                        Receive an instant risk probability score, severity badge (Low / Moderate / High), and health
+                        recommendations.
                     </p>
                 </div>
             </div>
@@ -137,7 +163,8 @@
 
         <!-- CTA under steps -->
         <div class="mt-12 text-center">
-            <a href="/predictor" id="hiw-cta" class="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-[#3182BD] hover:bg-[#2166AC] text-white font-outfit font-bold text-sm transition-all duration-200 shadow-md">
+            <a href="/predictor" id="hiw-cta"
+                class="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-[#3182BD] hover:bg-[#2166AC] text-white font-outfit font-bold text-sm transition-all duration-200 shadow-md">
                 <i class="fa-solid fa-bolt"></i> Try the Risk Predictor Now
             </a>
         </div>
@@ -151,32 +178,38 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
 
             <div class="flex items-start gap-4 p-6 bg-white border border-[#DEEBF7] rounded-2xl shadow-sm">
-                <div class="w-11 h-11 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] flex-shrink-0">
+                <div
+                    class="w-11 h-11 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] flex-shrink-0">
                     <i class="fa-solid fa-shield-heart text-lg"></i>
                 </div>
                 <div>
                     <h4 class="font-outfit font-bold text-[#0F172A] text-sm mb-1">Clinical Parameters</h4>
-                    <p class="text-slate-500 text-xs leading-relaxed">Blood pressure, cholesterol, glucose, BMI — all WHO-recognized cardiovascular indicators.</p>
+                    <p class="text-slate-500 text-xs leading-relaxed">Blood pressure, cholesterol, glucose, BMI — all
+                        WHO-recognized cardiovascular indicators.</p>
                 </div>
             </div>
 
             <div class="flex items-start gap-4 p-6 bg-white border border-[#DEEBF7] rounded-2xl shadow-sm">
-                <div class="w-11 h-11 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] flex-shrink-0">
+                <div
+                    class="w-11 h-11 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] flex-shrink-0">
                     <i class="fa-solid fa-brain text-lg"></i>
                 </div>
                 <div>
                     <h4 class="font-outfit font-bold text-[#0F172A] text-sm mb-1">Machine Learning Model</h4>
-                    <p class="text-slate-500 text-xs leading-relaxed">Supervised Decision Tree Classifier optimized on a balanced 50/50 class-split dataset.</p>
+                    <p class="text-slate-500 text-xs leading-relaxed">Supervised Decision Tree Classifier optimized on a
+                        balanced 50/50 class-split dataset.</p>
                 </div>
             </div>
 
             <div class="flex items-start gap-4 p-6 bg-white border border-[#DEEBF7] rounded-2xl shadow-sm">
-                <div class="w-11 h-11 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] flex-shrink-0">
+                <div
+                    class="w-11 h-11 rounded-xl bg-[#DEEBF7] flex items-center justify-center text-[#3182BD] flex-shrink-0">
                     <i class="fa-solid fa-file-medical text-lg"></i>
                 </div>
                 <div>
                     <h4 class="font-outfit font-bold text-[#0F172A] text-sm mb-1">Instant Risk Report</h4>
-                    <p class="text-slate-500 text-xs leading-relaxed">Personalized probability score with color-coded severity and actionable health guidance.</p>
+                    <p class="text-slate-500 text-xs leading-relaxed">Personalized probability score with color-coded
+                        severity and actionable health guidance.</p>
                 </div>
             </div>
 

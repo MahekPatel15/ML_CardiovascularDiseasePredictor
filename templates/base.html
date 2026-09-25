@@ -48,6 +48,26 @@
     
     <!-- Custom CSS stylesheet -->
     <link rel="stylesheet" href="/static/index.css">
+
+    <style>
+        /* Bulletproof navbar display rules that never get overridden */
+        @media (min-width: 768px) {
+            .navbar-desktop-group {
+                display: flex !important;
+            }
+            .navbar-mobile-toggle {
+                display: none !important;
+            }
+        }
+        @media (max-width: 767px) {
+            .navbar-desktop-group {
+                display: none !important;
+            }
+            .navbar-mobile-toggle {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-[#F4F8FA] text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-[#9ECAE1]/40 selection:text-[#0F172A]">
 
@@ -57,9 +77,9 @@
             <div class="flex items-center justify-between h-16 sm:h-20">
                 
                 <!-- Left Group: Logo + 4 Nav Links -->
-                <div class="flex items-center gap-4 lg:gap-8">
+                <div class="flex items-center gap-6 lg:gap-10">
                     <!-- Brand Logo -->
-                    <a href="/" class="flex items-center gap-2.5 group focus:outline-none">
+                    <a href="/" class="flex items-center gap-2.5 group focus:outline-none flex-shrink-0">
                         <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3182BD] flex items-center justify-center text-white shadow-sm group-hover:bg-[#2166AC] transition-colors">
                             <i class="fa-solid fa-heart-pulse text-lg"></i>
                         </div>
@@ -69,7 +89,7 @@
                     </a>
 
                     <!-- Desktop Header 4 Navigation Items Beside Logo -->
-                    <nav class="hidden md:flex items-center gap-1.5">
+                    <nav class="navbar-desktop-group items-center gap-1.5">
                         <a href="/" class="px-3.5 py-2 rounded-xl font-outfit text-sm font-semibold transition-colors flex items-center gap-2 {% if active_page == 'home' %}bg-[#DEEBF7] text-[#3182BD] border border-[#9ECAE1] font-bold{% else %}text-slate-600 hover:text-[#0F172A] hover:bg-[#DEEBF7]/40{% endif %}">
                             <i class="fa-solid fa-house text-xs"></i> Home
                         </a>
@@ -86,14 +106,14 @@
                 </div>
 
                 <!-- Right Group: CTA Button -->
-                <div class="hidden md:flex items-center">
+                <div class="navbar-desktop-group items-center">
                     <a href="/predictor" class="px-5 py-2.5 rounded-xl font-outfit font-bold text-xs text-white bg-[#3182BD] hover:bg-[#2166AC] transition-colors shadow-sm flex items-center gap-2">
                         <i class="fa-solid fa-bolt"></i> Risk Check
                     </a>
                 </div>
 
                 <!-- Mobile Hamburger Button -->
-                <button id="mobile-menu-btn" type="button" class="md:hidden p-2.5 rounded-xl text-slate-700 hover:bg-[#DEEBF7]/50 border border-[#DEEBF7] focus:outline-none focus:ring-2 focus:ring-[#3182BD]" aria-label="Toggle Navigation Menu">
+                <button id="mobile-menu-btn" type="button" class="navbar-mobile-toggle p-2.5 rounded-xl text-slate-700 hover:bg-[#DEEBF7]/50 border border-[#DEEBF7] focus:outline-none focus:ring-2 focus:ring-[#3182BD] cursor-pointer" aria-label="Toggle Navigation Menu">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
 
